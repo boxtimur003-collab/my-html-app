@@ -32,7 +32,7 @@ jobs:
         npm init -y
         npm install @capacitor/core@5.7.0 @capacitor/cli@5.7.0 --legacy-peer-deps
         npm install @capacitor/android@5.7.0 --legacy-peer-deps
-        npm install -g cordova-res
+        npm install -g cordova-res sharp-cli
     
     - name: Initialize Capacitor
       run: |
@@ -47,12 +47,30 @@ jobs:
         cp -r js www/ 2>/dev/null || true
         cp -r images www/ 2>/dev/null || true
     
-    - name: Generate icons
+    - name: Generate icons manually
       run: |
-        mkdir -p resources
         if [ -f "resources/icon.png" ]; then
-          echo "✅ Иконка найдена, генерируем..."
-          cordova-res android --skip-config --copy --icon-source resources/icon.png --type icon
+          echo "✅ Иконка найдена, генерируем все размеры..."
+          
+          # Создаем все размеры иконок вручную
+          mkdir -p android/app/src/main/res/mipmap-mdpi
+          mkdir -p android/app/src/main/res/mipmap-hdpi
+          mkdir -p android/app/src/main/res/mipmap-xhdpi
+          mkdir -p android/app/src/main/res/mipmap-xxhdpi
+          mkdir -p android/app/src/main/res/mipmap-xxxhdpi
+          
+          # Генерируем разные размеры
+          npx sharp -i resources/icon.png -o android/app/src/main/res/mipmap-mdpi/ic_launcher.png resize 48 48
+          npx sharp -i resources/icon.png -o android/app/src/main/res/mipmap-hdpi/ic_launcher.png resize 72 72
+          npx sharp -i resources/icon.png -o android/app/src/main/res/mipmap-xhdpi/ic_launcher.png resize 96 96
+          npx sharp -i resources/icon.png -o android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png resize 144 144
+          npx sharp -i resources/icon.png -o android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png resize 192 192
+          
+          # Копируем также в drawable
+          mkdir -p android/app/src/main/res/drawable
+          cp resources/icon.png android/app/src/main/res/drawable/icon.png
+          
+          echo "✅ Иконки созданы успешно"
         else
           echo "⚠️ Иконка не найдена, используется стандартная"
         fi
