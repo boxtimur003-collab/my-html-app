@@ -1,0 +1,1555 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Майнкрафт Рулетка 1.21.5 — Все предметы и мобы</title>
+    <style>
+        :root {
+            --bg: #1a1a1a;
+            --gold: #f5e56c;
+            --common: #9e9e9e;
+            --uncommon: #5a8a3a;
+            --rare: #4287f5;
+            --epic: #a040e8;
+            --legendary: #f5a623;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Courier New', monospace;
+            background: #1a1a1a;
+            background-image:
+                radial-gradient(ellipse at 50% 30%, rgba(0, 140, 0, 0.05) 0%, transparent 60%),
+                linear-gradient(180deg, #0a1a0a 0%, #1a1a1a 40%, #1a1a1a 60%, #0a1a0a 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            user-select: none;
+            overflow-x: hidden;
+        }
+
+        .container {
+            text-align: center;
+            background: rgba(26, 26, 26, 0.92);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 20px 25px 30px;
+            max-width: 850px;
+            width: 100%;
+            box-shadow:
+                0 0 0 2px #3b3b3b,
+                0 0 0 5px #1a1a1a,
+                0 0 0 7px #555,
+                0 25px 60px rgba(0, 0, 0, 0.7);
+            border: 1px solid #5a5a5a;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s, transform 0.5s;
+        }
+
+        .container.ready {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        h1 {
+            font-family: 'Courier New', monospace;
+            font-size: 2em;
+            color: #f0f0f0;
+            text-shadow: 2px 2px 0 #3a3a3a;
+            letter-spacing: 3px;
+            margin-bottom: 2px;
+        }
+
+        .version-badge {
+            display: inline-block;
+            background: #3a2a0a;
+            color: #d4a44a;
+            padding: 3px 10px;
+            border-radius: 4px;
+            font-size: 0.7em;
+            font-weight: bold;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+            border: 1px solid #6b4a1a;
+            font-family: 'Courier New', monospace;
+        }
+
+        .mode-switch {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .mode-btn {
+            padding: 12px 28px;
+            border: 2px solid #4a4a4a;
+            background: #2a2a2a;
+            color: #bbb;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            letter-spacing: 1px;
+            font-family: 'Courier New', monospace;
+            box-shadow: 0 3px 0 #1a1a1a;
+            transition: all 0.15s;
+            position: relative;
+            top: 0;
+        }
+
+        .mode-btn:hover {
+            background: #353535;
+            border-color: #6a6a6a;
+            top: -2px;
+            box-shadow: 0 5px 0 #1a1a1a;
+        }
+        .mode-btn:active {
+            top: 3px;
+            box-shadow: 0 0 0 #1a1a1a;
+        }
+        .mode-btn.active {
+            background: #2a4a1a;
+            border-color: #5a8a3a;
+            color: #fff;
+            box-shadow: 0 3px 0 #1a3a0a, 0 0 15px rgba(90, 138, 58, 0.2);
+        }
+        .mode-btn.active.mobs {
+            background: #4a1a1a;
+            border-color: #8a3a3a;
+            box-shadow: 0 3px 0 #3a0a0a, 0 0 15px rgba(138, 58, 58, 0.2);
+        }
+        .mode-btn.browse-btn {
+            background: #2a2a4a;
+            border-color: #4a4a8a;
+        }
+        .mode-btn.browse-btn:hover {
+            background: #35355a;
+            border-color: #6a6aaa;
+        }
+
+        .roulette-window {
+            position: relative;
+            width: 100%;
+            height: 130px;
+            background: #0d0d0d;
+            border: 3px solid #3b3b3b;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            box-shadow:
+                inset 0 0 40px rgba(0, 0, 0, 0.7),
+                0 0 0 2px #1a1a1a,
+                0 0 0 5px #555;
+        }
+
+        .roulette-window::before,
+        .roulette-window::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 60px;
+            z-index: 5;
+            pointer-events: none;
+        }
+        .roulette-window::before {
+            left: 0;
+            background: linear-gradient(to right, rgba(13, 13, 13, 0.95) 0%, transparent 100%);
+        }
+        .roulette-window::after {
+            right: 0;
+            background: linear-gradient(to left, rgba(13, 13, 13, 0.95) 0%, transparent 100%);
+        }
+
+        .pointer-line {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            width: 4px;
+            background: var(--gold);
+            z-index: 10;
+            box-shadow:
+                0 0 12px var(--gold),
+                0 0 25px rgba(245, 229, 108, 0.5),
+                0 0 50px rgba(245, 229, 108, 0.3);
+            border-radius: 2px;
+            transform: translateX(-50%);
+        }
+
+        .pointer-arrow-top,
+        .pointer-arrow-bottom {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 11;
+            width: 0;
+            height: 0;
+            border-left: 14px solid transparent;
+            border-right: 14px solid transparent;
+        }
+        .pointer-arrow-top {
+            top: -2px;
+            border-top: 16px solid var(--gold);
+            filter: drop-shadow(0 2px 4px rgba(245, 229, 108, 0.7));
+        }
+        .pointer-arrow-bottom {
+            bottom: -2px;
+            border-bottom: 16px solid var(--gold);
+            filter: drop-shadow(0 -2px 4px rgba(245, 229, 108, 0.7));
+        }
+
+        .strip-container {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+            height: 90px;
+            width: 100%;
+            z-index: 1;
+        }
+
+        .strip {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            white-space: nowrap;
+            will-change: transform;
+        }
+
+        .slot-item {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100px;
+            height: 85px;
+            flex-shrink: 0;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 8px;
+            margin: 0 3px;
+            transition: background 0.15s;
+            border: 1px solid transparent;
+            position: relative;
+        }
+
+        .slot-item.highlight {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(245, 229, 108, 0.3);
+            box-shadow: 0 0 20px rgba(245, 229, 108, 0.1);
+        }
+
+        .rarity-dot {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .slot-item .slot-icon {
+            width: 40px;
+            height: 40px;
+            object-fit: contain;
+            margin-bottom: 3px;
+            image-rendering: pixelated;
+            filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.6));
+        }
+
+        .slot-item .emoji {
+            font-size: 30px;
+            line-height: 1;
+            margin-bottom: 3px;
+            filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.6));
+        }
+
+        .slot-item .name {
+            font-size: 8px;
+            color: #bbb;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 0.5px;
+            text-align: center;
+            line-height: 1.2;
+            max-width: 90px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .spin-btn {
+            padding: 16px 55px;
+            font-size: 1.3em;
+            font-weight: bold;
+            background: #5a8a3a;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            letter-spacing: 2px;
+            font-family: 'Courier New', monospace;
+            box-shadow: 0 5px 0 #2a4a1a;
+            transition: all 0.12s;
+            position: relative;
+            top: 0;
+            text-shadow: 2px 2px 0 #2a4a1a;
+        }
+        .spin-btn:hover {
+            background: #6a9a4a;
+            top: -2px;
+            box-shadow: 0 7px 0 #2a4a1a;
+        }
+        .spin-btn:active {
+            top: 5px;
+            box-shadow: 0 0 0 #2a4a1a;
+        }
+        .spin-btn:disabled {
+            background: #5a5a5a;
+            cursor: not-allowed;
+            box-shadow: 0 5px 0 #3a3a3a;
+            top: 0;
+            text-shadow: 2px 2px 0 #3a3a3a;
+        }
+
+        .result {
+            margin-top: 18px;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .result-text {
+            font-size: 1.2em;
+            color: #f5f5f5;
+            font-weight: bold;
+            padding: 10px 24px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid #5a5a5a;
+            border-radius: 6px;
+            animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            font-family: 'Courier New', monospace;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .result-text:hover {
+            border-color: var(--gold);
+            box-shadow: 0 0 20px rgba(245, 229, 108, 0.3);
+            transform: scale(1.03);
+        }
+
+        .result-icon {
+            width: 36px;
+            height: 36px;
+            object-fit: contain;
+            image-rendering: pixelated;
+        }
+        .result-emoji {
+            font-size: 1.5em;
+        }
+
+        @keyframes popIn {
+            from {
+                opacity: 0;
+                transform: scale(0.3);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .counter {
+            color: #666;
+            font-size: 0.75em;
+            margin-top: 4px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .flash {
+            animation: flashAnim 0.5s ease-out;
+        }
+        @keyframes flashAnim {
+            0% {
+                box-shadow: inset 0 0 60px rgba(245, 229, 108, 0.7),
+                    0 0 0 2px #1a1a1a,
+                    0 0 0 5px var(--gold);
+            }
+            100% {
+                box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.7),
+                    0 0 0 2px #1a1a1a,
+                    0 0 0 5px #555;
+            }
+        }
+
+        /* ====== МОДАЛЬНОЕ ОКНО РЕЗУЛЬТАТА ====== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s;
+            backdrop-filter: blur(10px);
+        }
+
+        .modal-overlay.closing {
+            animation: fadeOut 0.3s forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+
+        .modal-content {
+            background: #1a1a1a;
+            border: 4px solid #5a5a5a;
+            border-radius: 20px;
+            padding: 40px 30px 30px;
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+            position: relative;
+            animation: slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow:
+                0 0 0 3px #3b3b3b,
+                0 0 0 6px #1a1a1a,
+                0 30px 60px rgba(0, 0, 0, 0.8);
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid #5a5a5a;
+            border-radius: 50%;
+            color: #ccc;
+            font-size: 1.4em;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Courier New', monospace;
+            z-index: 10;
+        }
+        .modal-close:hover {
+            background: rgba(255, 80, 80, 0.3);
+            border-color: #e84040;
+            color: #fff;
+            transform: rotate(90deg);
+        }
+
+        .modal-image {
+            width: 160px;
+            height: 160px;
+            object-fit: contain;
+            image-rendering: pixelated;
+            margin-bottom: 15px;
+            filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.6));
+            animation: float 2s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .modal-name {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #f0f0f0;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 0 #1a1a1a;
+        }
+
+        .modal-rarity {
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 1em;
+            font-weight: bold;
+            letter-spacing: 2px;
+            font-family: 'Courier New', monospace;
+            text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+            animation: glow 2s ease-in-out infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4); }
+            50% { box-shadow: 0 4px 30px currentColor; }
+        }
+
+        .modal-info {
+            color: #999;
+            font-size: 0.85em;
+            margin-top: 10px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .rarity-common { color: #9e9e9e; border-color: #9e9e9e; }
+        .rarity-uncommon { color: #5a8a3a; border-color: #5a8a3a; }
+        .rarity-rare { color: #4287f5; border-color: #4287f5; }
+        .rarity-epic { color: #a040e8; border-color: #a040e8; }
+        .rarity-legendary { color: #f5a623; border-color: #f5a623; }
+
+        /* ====== МЕНЮ ПРОСМОТРА ====== */
+        .browse-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            animation: fadeIn 0.3s;
+            backdrop-filter: blur(10px);
+        }
+
+        .browse-overlay.closing {
+            animation: fadeOut 0.3s forwards;
+        }
+
+        .browse-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 20px;
+            background: #1a1a1a;
+            border-bottom: 2px solid #3b3b3b;
+            flex-shrink: 0;
+        }
+
+        .browse-title {
+            font-family: 'Courier New', monospace;
+            font-size: 1.4em;
+            color: #f0f0f0;
+            letter-spacing: 2px;
+        }
+
+        .browse-close {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid #5a5a5a;
+            border-radius: 50%;
+            color: #ccc;
+            font-size: 1.4em;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Courier New', monospace;
+        }
+        .browse-close:hover {
+            background: rgba(255, 80, 80, 0.3);
+            border-color: #e84040;
+            color: #fff;
+            transform: rotate(90deg);
+        }
+
+        .browse-filters {
+            display: flex;
+            gap: 8px;
+            padding: 10px 20px;
+            background: #1a1a1a;
+            border-bottom: 1px solid #2a2a2a;
+            flex-wrap: wrap;
+            flex-shrink: 0;
+        }
+
+        .filter-btn {
+            padding: 6px 14px;
+            border: 1px solid #4a4a4a;
+            background: #2a2a2a;
+            color: #bbb;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.8em;
+            font-family: 'Courier New', monospace;
+            transition: all 0.2s;
+        }
+        .filter-btn:hover {
+            border-color: #6a6a6a;
+            background: #353535;
+        }
+        .filter-btn.active {
+            color: #fff;
+            border-color: #888;
+        }
+        .filter-btn.filter-all.active { background: #4a4a4a; border-color: #888; }
+        .filter-btn.filter-common.active { background: #3a3a3a; border-color: #9e9e9e; }
+        .filter-btn.filter-uncommon.active { background: #2a3a1a; border-color: #5a8a3a; }
+        .filter-btn.filter-rare.active { background: #1a2a4a; border-color: #4287f5; }
+        .filter-btn.filter-epic.active { background: #3a1a4a; border-color: #a040e8; }
+        .filter-btn.filter-legendary.active { background: #4a2a0a; border-color: #f5a623; }
+
+        .browse-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+            gap: 8px;
+            padding: 20px;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        .browse-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 5px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid #2a2a2a;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .browse-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: #5a5a5a;
+            transform: translateY(-2px);
+        }
+        .browse-item .browse-icon {
+            width: 48px;
+            height: 48px;
+            object-fit: contain;
+            image-rendering: pixelated;
+            margin-bottom: 5px;
+        }
+        .browse-item .browse-emoji {
+            font-size: 36px;
+            margin-bottom: 5px;
+        }
+        .browse-item .browse-name {
+            font-size: 9px;
+            color: #aaa;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+            line-height: 1.2;
+            max-width: 80px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .browse-item .browse-rarity-dot {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        /* ====== ЭКРАН ЗАГРУЗКИ ====== */
+        #loadingOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0d0d0d;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            font-family: 'Courier New', monospace;
+            color: #ccc;
+            transition: opacity 0.5s;
+        }
+
+        #loadingOverlay .loading-icon {
+            font-size: 4em;
+            animation: bounce 1s infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        #loadingOverlay .loading-title {
+            font-size: 1.6em;
+            letter-spacing: 3px;
+            margin-bottom: 20px;
+            color: #f0f0f0;
+        }
+
+        #loadingBarContainer {
+            width: 350px;
+            height: 14px;
+            background: #1a1a1a;
+            border-radius: 7px;
+            overflow: hidden;
+            border: 2px solid #4a4a4a;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.5);
+        }
+
+        #loadingBar {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #5a8a3a, #6a9a4a, #f5a623);
+            border-radius: 5px;
+            transition: width 0.3s ease;
+        }
+
+        #loadingText {
+            margin-top: 12px;
+            font-size: 0.9em;
+            color: #888;
+            letter-spacing: 1px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px 10px 20px;
+            }
+            .roulette-window {
+                height: 110px;
+            }
+            .slot-item {
+                width: 75px;
+                height: 70px;
+            }
+            .slot-item .slot-icon {
+                width: 30px;
+                height: 30px;
+            }
+            .slot-item .emoji {
+                font-size: 24px;
+            }
+            .slot-item .name {
+                font-size: 7px;
+            }
+            .strip-container {
+                height: 70px;
+            }
+            h1 {
+                font-size: 1.4em;
+            }
+            .mode-btn {
+                padding: 10px 16px;
+                font-size: 0.8em;
+            }
+            .spin-btn {
+                padding: 12px 35px;
+                font-size: 1em;
+            }
+            .roulette-window::before,
+            .roulette-window::after {
+                width: 35px;
+            }
+            .modal-image {
+                width: 120px;
+                height: 120px;
+            }
+            .modal-name {
+                font-size: 1.4em;
+            }
+            #loadingBarContainer {
+                width: 260px;
+            }
+            #loadingOverlay .loading-title {
+                font-size: 1.2em;
+            }
+            .browse-grid {
+                grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+                gap: 5px;
+                padding: 10px;
+            }
+            .browse-item .browse-icon {
+                width: 36px;
+                height: 36px;
+            }
+            .browse-item .browse-emoji {
+                font-size: 28px;
+            }
+            .browse-item .browse-name {
+                font-size: 7px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="mainContainer">
+        <h1>МАЙНКРАФТ РУЛЕТКА</h1>
+        <div class="version-badge">v1.21.5</div>
+
+        <div class="mode-switch">
+            <button class="mode-btn active" id="btn-items" onclick="switchMode('items')">🧱 ПРЕДМЕТЫ</button>
+            <button class="mode-btn" id="btn-mobs" onclick="switchMode('mobs')">👹 МОБЫ</button>
+            <button class="mode-btn browse-btn" id="btn-browse" onclick="openBrowse()">📋 КАТАЛОГ</button>
+        </div>
+
+        <div class="roulette-window" id="rouletteWindow">
+            <div class="pointer-line"></div>
+            <div class="pointer-arrow-top"></div>
+            <div class="pointer-arrow-bottom"></div>
+            <div class="strip-container">
+                <div class="strip" id="strip"></div>
+            </div>
+        </div>
+
+        <button class="spin-btn" id="spinBtn" onclick="spin()">🎰 КРУТИТЬ</button>
+
+        <div class="result" id="result"></div>
+        <div class="counter" id="counter"></div>
+    </div>
+
+    <script>
+        function shuffleArray(arr) {
+            const shuffled = [...arr];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        const items = shuffleArray([
+            { name: 'Деревянная кирка', emoji: '⛏️', img: 'https://minecraft.wiki/images/Wooden_Pickaxe_JE2_BE2.png?format=original', rarity: 'common' },
+            { name: 'Каменная кирка', emoji: '⛏️', img: 'https://minecraft.wiki/images/Stone_Pickaxe_JE2_BE2.png?format=original', rarity: 'common' },
+            { name: 'Железная кирка', emoji: '⛏️', img: 'https://minecraft.wiki/images/Iron_Pickaxe_JE3_BE2.png?format=original', rarity: 'uncommon' },
+            { name: 'Золотая кирка', emoji: '⛏️', img: 'https://minecraft.wiki/images/Golden_Pickaxe_JE3_BE2.png?format=original', rarity: 'uncommon' },
+            { name: 'Алмазная кирка', emoji: '⛏️', img: 'https://minecraft.wiki/images/Diamond_Pickaxe_JE3_BE3.png?format=original', rarity: 'epic' },
+            { name: 'Незеритовая кирка', emoji: '⛏️', img: 'https://minecraft.wiki/images/Netherite_Pickaxe_JE2_BE1.png?format=original', rarity: 'legendary' },
+            { name: 'Деревянный топор', emoji: '🪓', img: 'https://minecraft.wiki/images/Wooden_Axe_JE2_BE2.png?format=original', rarity: 'common' },
+            { name: 'Каменный топор', emoji: '🪓', img: 'https://minecraft.wiki/images/Stone_Axe_JE2_BE2.png?format=original', rarity: 'common' },
+            { name: 'Железный топор', emoji: '🪓', img: 'https://minecraft.wiki/images/Iron_Axe_JE5_BE2.png?format=original', rarity: 'uncommon' },
+            { name: 'Золотой топор', emoji: '🪓', img: 'https://minecraft.wiki/images/Golden_Axe_JE3_BE2.png?format=original', rarity: 'uncommon' },
+            { name: 'Алмазный топор', emoji: '🪓', img: 'https://minecraft.wiki/images/Diamond_Axe_JE3_BE3.png?qformat=original', rarity: 'epic' },
+            { name: 'Незеритовый топор', emoji: '🪓', img: 'https://minecraft.wiki/images/Netherite_Axe_JE2_BE2.png?format=original', rarity: 'legendary' },
+            { name: 'Деревянная лопата', emoji: '🪏', img: 'https://minecraft.wiki/images/Wooden_Shovel_JE2_BE2.png?format=original', rarity: 'common' },
+            { name: 'Каменная лопата', emoji: '🪏', img: 'https://minecraft.wiki/images/Stone_Shovel_JE2_BE2.png?format=original', rarity: 'common' },
+            { name: 'Железная лопата', emoji: '🪏', img: 'https://minecraft.wiki/images/Iron_Shovel_JE3_BE2.png?format=original', rarity: 'uncommon' },
+            { name: 'Золотая лопата', emoji: '🪏', img: 'https://minecraft.wiki/images/Golden_Shovel_JE3_BE2.png?format=original', rarity: 'uncommon' },
+            { name: 'Алмазная лопата', emoji: '🪏', img: 'https://minecraft.wiki/images/Diamond_Shovel_JE2_BE2.png?format=original', rarity: 'epic' },
+            { name: 'Незеритовая лопата', emoji: '🪏', img: 'https://minecraft.wiki/images/Netherite_Shovel_JE2_BE1.png?format=original', rarity: 'legendary' },
+            { name: 'Деревянная мотыга', emoji: '🌱', img: 'https://minecraft.wiki/images/Wooden_Hoe_JE2_BE2.png?format=original', rarity: 'common' },
+            { name: 'Каменная мотыга', emoji: '🌱', img: 'https://minecraft.wiki/images/Stone_Hoe_JE2_BE2.png?format=original', rarity: 'common' },
+            { name: 'Железная мотыга', emoji: '🌱', img: 'https://minecraft.wiki/images/Iron_Hoe_JE2_BE2.png?format=original', rarity: 'uncommon' },
+            { name: 'Золотая мотыга', emoji: '🌱', img: 'https://minecraft.wiki/images/Golden_Hoe_JE3_BE3.png?format=original', rarity: 'uncommon' },
+            { name: 'Алмазная мотыга', emoji: '🌱', img: 'https://minecraft.wiki/images/Diamond_Hoe_JE3_BE3.png?format=original', rarity: 'epic' },
+            { name: 'Незеритовая мотыга', emoji: '🌱', img: 'https://minecraft.wiki/images/Netherite_Hoe_JE2_BE2.png?format=original', rarity: 'legendary' },
+            { name: 'Деревянный меч', emoji: '🗡️', img: 'https://minecraft.wiki/images/Wooden_Sword_JE2_BE2.png?format=original', rarity: 'common' },
+            { name: 'Каменный меч', emoji: '🗡️', img: 'https://minecraft.wiki/images/Stone_Sword_JE2_BE2.png?format=original', rarity: 'common' },
+            { name: 'Железный меч', emoji: '🗡️', img: 'https://minecraft.wiki/images/Iron_Sword_JE2_BE2.png?format=original', rarity: 'uncommon' },
+            { name: 'Золотой меч', emoji: '🗡️', img: 'https://minecraft.wiki/images/Golden_Sword_JE3_BE2.png?format=original', rarity: 'uncommon' },
+            { name: 'Алмазный меч', emoji: '🗡️', img: 'https://minecraft.wiki/images/Diamond_Sword_JE3_BE3.png?format=original', rarity: 'epic' },
+            { name: 'Незеритовый меч', emoji: '🗡️', img: 'https://minecraft.wiki/images/Netherite_Sword_JE2_BE2.png?format=original', rarity: 'legendary' },
+            { name: 'Лук', emoji: '🏹', img: 'https://minecraft.wiki/images/Bow_JE2_BE1.png?format=original', rarity: 'uncommon' },
+            { name: 'Арбалет', emoji: '🏹', img: 'https://minecraft.wiki/images/Crossbow.png?format=original', rarity: 'rare' },
+            { name: 'Трезубец', emoji: '🔱', img: 'https://minecraft.wiki/images/Trident_%28item%29_JE2_BE1.png?format=original', rarity: 'legendary' },
+            { name: 'Булава', emoji: '🔨', img: 'https://minecraft.wiki/images/Mace_JE1_BE1.png?format=original', rarity: 'legendary' },
+            { name: 'Щит', emoji: '🛡️', img: 'https://minecraft.wiki/images/Shield_JE2_BE1.png?format=original', rarity: 'uncommon' },
+            { name: 'Кожаный шлем', emoji: '🪖', img: 'https://minecraft.wiki/images/Leather_Cap_JE4_BE2.png?format=original', rarity: 'common' },
+            { name: 'Железный шлем', emoji: '🪖', img: 'https://minecraft.wiki/images/Iron_Helmet_JE2_BE2.png?format=original', rarity: 'uncommon' },
+            { name: 'Алмазный шлем', emoji: '🪖', img: 'https://minecraft.wiki/images/thumb/Diamond_Helmet_JE2_BE2.png/160px-Diamond_Helmet_JE2_BE2.png?format=original', rarity: 'epic' },
+            { name: 'Незеритовый шлем', emoji: '🪖', img: 'https://minecraft.wiki/images/Netherite_Helmet_JE2_BE1.png?format=original', rarity: 'legendary' },
+            { name: 'Алмазная кираса', emoji: '👕', img: 'https://minecraft.wiki/images/Diamond_Chestplate_JE3_BE2.png?format=original', rarity: 'epic' },
+            { name: 'Незеритовая кираса', emoji: '👕', img: 'https://minecraft.wiki/images/Netherite_Chestplate_JE2_BE1.png?format=original', rarity: 'legendary' },
+            { name: 'Черепаший панцирь', emoji: '🐢', img: 'https://minecraft.wiki/images/Turtle_Shell_JE1_BE1.png?format=original', rarity: 'rare' },
+            { name: 'Яблоко', emoji: '🍎', img: 'https://minecraft.wiki/images/Apple_JE1_BE1.png?format=original', rarity: 'common' },
+            { name: 'Золотое яблоко', emoji: '🍎', img: 'https://minecraft.wiki/images/Golden_Apple_JE1_BE1.png?format=original', rarity: 'rare' },
+            { name: 'Зачарованное яблоко', emoji: '🍎', img: 'https://minecraft.wiki/images/Enchanted_Golden_Apple_JE1_BE1.gif?format=original', rarity: 'legendary' },
+            { name: 'Хлеб', emoji: '🍞', img: 'https://minecraft.wiki/images/Bread_JE2_BE2.png?format=original', rarity: 'common' },
+            { name: 'Стейк', emoji: '🥩', img: 'https://minecraft.wiki/images/Steak_JE4_BE3.png?format=original', rarity: 'common' },
+            { name: 'Жареная курица', emoji: '🍗', img: 'https://minecraft.wiki/images/Cooked_Chicken_JE2_BE2.png?format=original', rarity: 'common' },
+            { name: 'Печенье', emoji: '🍪', img: 'https://minecraft.wiki/images/Cookie_JE1_BE1.png?format=original', rarity: 'common' },
+            { name: 'Тыквенный пирог', emoji: '🥧', img: 'https://minecraft.wiki/images/Pumpkin_Pie_JE1_BE1.png?format=original', rarity: 'uncommon' },
+            { name: 'Торт', emoji: '🎂', img: 'https://minecraft.wiki/images/thumb/Cake_JE4.png/150px-Cake_JE4.png?format=original', rarity: 'uncommon' },
+            { name: 'Морковь', emoji: '🥕', img: 'https://minecraft.wiki/images/Carrot_JE3_BE2.png?format=original', rarity: 'common' },
+            { name: 'Золотая морковь', emoji: '🥕', img: 'https://minecraft.wiki/images/Golden_Carrot_JE4_BE2.png?format=original', rarity: 'rare' },
+            { name: 'Печёный картофель', emoji: '🥔', img: 'https://minecraft.wiki/images/Baked_Potato_JE4_BE2.png?format=original', rarity: 'common' },
+            { name: 'Арбуз', emoji: '🍉', img: 'https://minecraft.wiki/images/Melon_Slice_JE1_BE1.png?format=original', rarity: 'common' },
+            { name: 'Светящаяся ягода', emoji: '🫐', img: 'https://minecraft.wiki/images/Glow_Berries_JE1_BE1.png?format=original', rarity: 'uncommon' },
+            { name: 'Грибной суп', emoji: '🍲', img: 'https://minecraft.wiki/images/Mushroom_Stew_JE1_BE1.png?format=original', rarity: 'common' },
+            { name: 'Подозрительный суп', emoji: '🍲', img: 'https://minecraft.wiki/images/Suspicious_Stew_JE1_BE1.png?format=original', rarity: 'rare' },
+            { name: 'Уголь', emoji: '🪨', img: 'https://minecraft.wiki/images/Coal_JE4_BE3.png?format=original', rarity: 'common' },
+            { name: 'Железный слиток', emoji: '🪨', img: 'https://minecraft.wiki/images/Iron_Ingot_JE3_BE2.png?format=original', rarity: 'common' },
+            { name: 'Золотой слиток', emoji: '🟨', img: 'https://minecraft.wiki/images/Gold_Ingot_JE4_BE2.png?format=original', rarity: 'uncommon' },
+            { name: 'Алмаз', emoji: '💎', img: 'https://minecraft.wiki/images/Diamond_JE3_BE3.png?format=original', rarity: 'epic' },
+            { name: 'Изумруд', emoji: '💚', img: 'https://minecraft.wiki/images/Emerald_JE2_BE2.png?format=original', rarity: 'rare' },
+            { name: 'Лазурит', emoji: '🟦', img: 'https://minecraft.wiki/images/Lapis_Lazuli_JE2_BE2.png?format=original', rarity: 'uncommon' },
+            { name: 'Редстоун', emoji: '🔴', img: 'https://minecraft.wiki/images/Redstone_Dust_JE2_BE2.png?format=original', rarity: 'uncommon' },
+            { name: 'Медный слиток', emoji: '🟠', img: 'https://minecraft.wiki/images/Copper_Ingot_JE2_BE1.png?format=original', rarity: 'common' },
+            { name: 'Незеритовый слиток', emoji: '🟪', img: 'https://minecraft.wiki/images/Netherite_Ingot_JE1_BE2.png?format=original', rarity: 'legendary' },
+            { name: 'Незеритовый лом', emoji: '🟫', img: 'https://minecraft.wiki/images/Netherite_Scrap_JE2_BE1.png?format=original', rarity: 'epic' },
+            { name: 'Аметистовый осколок', emoji: '🟣', img: 'https://minecraft.wiki/images/Amethyst_Shard_JE2_BE1.png?format=original', rarity: 'uncommon' },
+            { name: 'Кожа', emoji: '🟫', img: 'https://minecraft.wiki/images/Leather_JE2_BE2.png?format=original', rarity: 'common' },
+            { name: 'Перо', emoji: '🪶', img: 'https://minecraft.wiki/images/Feather_JE3_BE2.png?format=original', rarity: 'common' },
+            { name: 'Кремень', emoji: '🪨', img: 'https://minecraft.wiki/images/Flint_JE2_BE2.png?format=original', rarity: 'common' },
+            { name: 'Палка', emoji: '🥢', img: 'https://minecraft.wiki/images/Stick_JE1_BE1.png?format=original', rarity: 'common' },
+            { name: 'Нить', emoji: '🧵', img: 'https://minecraft.wiki/images/String_JE2_BE2.png?format=original', rarity: 'common' },
+            { name: 'Слизь', emoji: '🟢', img: 'https://minecraft.wiki/images/Slimeball_JE1_BE1.png?format=original', rarity: 'uncommon' },
+            { name: 'Порох', emoji: '💥', img: 'https://minecraft.wiki/images/Gunpowder_JE1_BE1.png?format=original', rarity: 'uncommon' },
+            { name: 'Кость', emoji: '🦴', img: 'https://minecraft.wiki/images/Bone_JE1_BE1.png?format=original', rarity: 'common' },
+            { name: 'Земля', emoji: '🟫', img: 'https://minecraft.wiki/images/Dirt_JE2_BE2.png?format=original', rarity: 'common' },
+            { name: 'Камень', emoji: '🪨', img: 'https://minecraft.wiki/images/thumb/Stone_JE5_BE3.png/150px-Stone_JE5_BE3.png?format=original', rarity: 'common' },
+            { name: 'Булыжник', emoji: '🪨', img: 'https://minecraft.wiki/images/Cobblestone_JE5_BE3.png?format=original', rarity: 'common' },
+            { name: 'Доски', emoji: '🪵', img: 'https://minecraft.wiki/images/Oak_Planks.png?format=original', rarity: 'common' },
+            { name: 'Песок', emoji: '🏖️', img: 'https://minecraft.wiki/images/Sand_JE3_BE2.png?format=original', rarity: 'common' },
+            { name: 'Стекло', emoji: '🪟', img: 'https://minecraft.wiki/images/thumb/Glass_JE4.png/150px-Glass_JE4.png?format=original', rarity: 'common' },
+            { name: 'Обсидиан', emoji: '⬛', img: 'https://minecraft.wiki/images/thumb/Obsidian_JE3_BE2.png/150px-Obsidian_JE3_BE2.png?format=original', rarity: 'rare' },
+            { name: 'Сундук', emoji: '📦', img: 'https://minecraft.wiki/images/Chest.gif?format=original', rarity: 'common' },
+            { name: 'Эндер-сундук', emoji: '📦', img: 'https://minecraft.wiki/images/Ender_Chest_JE2_BE2.gif?format=original', rarity: 'epic' },
+            { name: 'Верстак', emoji: '🔧', img: 'https://minecraft.wiki/images/Crafting_Table_JE4_BE3.png?format=original', rarity: 'common' },
+            { name: 'Маяк', emoji: '💡', img: 'https://minecraft.wiki/images/Beacon_JE6_BE2.png?format=original', rarity: 'legendary' },
+            { name: 'ТНТ', emoji: '💣', img: 'https://minecraft.wiki/images/TNT_JE3_BE2.png?format=original', rarity: 'uncommon' },
+            { name: 'Факел', emoji: '🔦', img: 'https://minecraft.wiki/images/Torch.gif?format=original', rarity: 'common' },
+            { name: 'Ведро', emoji: '🪣', img: 'https://minecraft.wiki/images/Bucket_JE1_BE1.png?format=original', rarity: 'common' },
+            { name: 'Ведро воды', emoji: '🪣', img: 'https://minecraft.wiki/images/Water_Bucket_JE1_BE1.png?format=original', rarity: 'common' },
+            { name: 'Ведро лавы', emoji: '🪣', img: 'https://minecraft.wiki/images/Lava_Bucket_JE1_BE1.png?format=original', rarity: 'uncommon' },
+            { name: 'Удочка', emoji: '🎣', img: 'https://minecraft.wiki/images/Fishing_Rod_JE1_BE1.png?format=original', rarity: 'uncommon' },
+            { name: 'Ножницы', emoji: '✂️', img: 'https://minecraft.wiki/images/Shears_JE1_BE1.png?format=original', rarity: 'common' },
+            { name: 'Огниво', emoji: '🔥', img: 'https://minecraft.wiki/images/Flint_and_Steel_JE4_BE2.png?format=original', rarity: 'uncommon' },
+            { name: 'Компас', emoji: '🧭', img: 'https://minecraft.wiki/images/Compass_JE3_BE3.gif?format=original', rarity: 'uncommon' },
+            { name: 'Часы', emoji: '🕐', img: 'https://minecraft.wiki/images/Clock_JE3_BE3.gif?format=original', rarity: 'uncommon' },
+            { name: 'Седло', emoji: '🐴', img: 'https://minecraft.wiki/images/Saddle_JE1_BE1.png?format=original', rarity: 'rare' },
+            { name: 'Поводок', emoji: '🪢', img: 'https://minecraft.wiki/images/Lead_JE1_BE1.png?format=original', rarity: 'uncommon' },
+            { name: 'Бирка', emoji: '🏷️', img: 'https://minecraft.wiki/images/Name_Tag_JE1_BE1.png?format=original', rarity: 'rare' },
+            { name: 'Эндер-жемчуг', emoji: '🟢', img: 'https://minecraft.wiki/images/Ender_Pearl_JE3_BE2.png?format=original', rarity: 'epic' },
+            { name: 'Око Эндера', emoji: '👁️', img: 'https://minecraft.wiki/images/Eye_of_Ender_JE1_BE1.png?format=original', rarity: 'epic' },
+            { name: 'Бутылочка опыта', emoji: '🧪', img: 'https://minecraft.wiki/images/Bottle_o%27_Enchanting_JE1_BE1.png?format=original', rarity: 'rare' },
+            { name: 'Зелье', emoji: '🧪', img: 'https://minecraft.wiki/images/Potion_of_Healing_JE1_BE1.png?format=original', rarity: 'uncommon' },
+            { name: 'Книга', emoji: '📖', img: 'https://minecraft.wiki/images/Book_JE2_BE2.png?format=original', rarity: 'common' },
+            { name: 'Стрела', emoji: '🏹', img: 'https://minecraft.wiki/images/Arrow_%28item%29_JE1_BE1.png?format=original', rarity: 'common' },
+            { name: 'Горн', emoji: '📯', img: 'https://minecraft.wiki/images/Goat_Horn_JE1_BE1.png?format=original', rarity: 'rare' },
+            { name: 'Эхо-осколок', emoji: '💠', img: 'https://minecraft.wiki/images/Echo_Shard_JE1_BE1.png?format=original', rarity: 'legendary' },
+            { name: 'Диск', emoji: '💿', img: 'https://minecraft.wiki/images/Music_Disc_13_JE1_BE1.png?format=original', rarity: 'epic' },
+            { name: 'Светокаменный стержень', emoji: '🕯️', img: 'https://minecraft.wiki/images/Blaze_Rod_JE1_BE1.png?format=original', rarity: 'rare' },
+        ]);
+
+        const mobs = shuffleArray([
+            { name: 'Крипер', emoji: '💥', img: 'https://minecraft.wiki/images/thumb/Creeper_JE3_BE1.png/256px-Creeper_JE3_BE1.png?format=original', rarity: 'common' },
+            { name: 'Заряженный крипер', emoji: '💥', img: 'https://minecraft.wiki/images/Charged_Creeper.webp?format=original', rarity: 'legendary' },
+            { name: 'Зомби', emoji: '🧟', img: 'https://minecraft.wiki/images/thumb/Zombie_JE5_BE2.png/200px-Zombie_JE5_BE2.png?format=original', rarity: 'common' },
+            { name: 'Зомби-житель', emoji: '🧟', img: 'https://minecraft.wiki/images/thumb/Plains_Zombie_Villager_Base_JE1.png/320px-Plains_Zombie_Villager_Base_JE1.png?format=original', rarity: 'uncommon' },
+            { name: 'Утопленник', emoji: '🌊', img: 'https://minecraft.wiki/images/thumb/Drowned_JE2.png/264px-Drowned_JE2.png?format=original', rarity: 'uncommon' },
+            { name: 'Кадавр', emoji: '🏜️', img: 'https://minecraft.wiki/images/thumb/Husk_JE4_BE2.png/100px-Husk_JE4_BE2.png?format=original', rarity: 'uncommon' },
+            { name: 'Скелет', emoji: '💀', img: 'https://minecraft.wiki/images/thumb/Skeleton_JE6_BE4.png/292px-Skeleton_JE6_BE4.png?format=original', rarity: 'common' },
+            { name: 'Зимогор', emoji: '❄️', img: 'https://ru.minecraft.wiki/images/thumb/Зимогор.png/250px-Зимогор.png?format=original', rarity: 'uncommon' },
+            { name: 'Визер-скелет', emoji: '💀', img: 'https://minecraft.wiki/images/thumb/Wither_Skeleton_JE4_BE3.png/378px-Wither_Skeleton_JE4_BE3.png?format=original', rarity: 'epic' },
+            { name: 'Паук', emoji: '🕷️', img: 'https://minecraft.wiki/images/thumb/Spider_JE5_BE4.png/320px-Spider_JE5_BE4.png?format=original', rarity: 'common' },
+            { name: 'Пещерный паук', emoji: '🕷️', img: 'https://minecraft.wiki/images/thumb/Cave_Spider_JE3_BE3.png/320px-Cave_Spider_JE3_BE3.png?format=original', rarity: 'uncommon' },
+            { name: 'Эндермен', emoji: '🔮', img: 'https://ru.minecraft.wiki/images/thumb/Странник_Края.png/212px-Странник_Края.png?format=original', rarity: 'rare' },
+            { name: 'Слизень', emoji: '🟢', img: 'https://ru.minecraft.wiki/images/thumb/Слизень_JE3_BE2.png/320px-Слизень_JE3_BE2.png?format=original', rarity: 'uncommon' },
+            { name: 'Магмовый куб', emoji: '🟠', img: 'https://ru.minecraft.wiki/images/thumb/Магмовый_куб.png/320px-Магмовый_куб.png?format=original', rarity: 'rare' },
+            { name: 'Ведьма', emoji: '🧙‍♀️', img: 'https://minecraft.wiki/images/thumb/Witch_JE3.png/300px-Witch_JE3.png?format=original', rarity: 'rare' },
+            { name: 'Гаст', emoji: '👻', img: 'https://minecraft.wiki/images/thumb/Ghast_JE3_BE3.gif/440px-Ghast_JE3_BE3.gif?format=original', rarity: 'epic' },
+            { name: 'Ифрит', emoji: '🔥', img: 'https://minecraft.wiki/images/Blaze_JE2.gif?format=original', rarity: 'epic' },
+            { name: 'Варден', emoji: '🐡', img: 'https://minecraft.wiki/images/Warden.gif?format=original', rarity: 'legendary' },
+            { name: 'Разбойник', emoji: '🏹', img: 'https://minecraft.wiki/images/thumb/Pillager_JE3.png/320px-Pillager_JE3.png?format=original', rarity: 'uncommon' },
+            { name: 'Заклинатель', emoji: '🧙', img: 'https://minecraft.wiki/images/Evoker_JE3.png?format=original', rarity: 'epic' },
+            { name: 'Визер', emoji: '☠️', img: 'https://minecraft.wiki/images/thumb/Wither_JE2_BE2.png/320px-Wither_JE2_BE2.png?format=original', rarity: 'legendary' },
+            { name: 'Дракон Края', emoji: '🐉', img: 'https://minecraft.wiki/images/Ender_Dragon.gif?format=original', rarity: 'legendary' },
+            { name: 'Шалкер', emoji: '📦', img: 'https://minecraft.wiki/images/Shulker_JE1_BE1.png?format=original', rarity: 'epic' },
+            { name: 'Фантом', emoji: '🦇', img: 'https://minecraft.wiki/images/Phantom_JE2.gif?format=original', rarity: 'rare' },
+            { name: 'Разоритель', emoji: '🐗', img: 'https://minecraft.wiki/images/thumb/Ravager_JE1.png/480px-Ravager_JE1.png?format=original', rarity: 'epic' },
+            { name: 'Вихрь', emoji: '🌪️', img: 'https://minecraft.wiki/images/Breeze_JE1.webp?format=original', rarity: 'epic' },
+            { name: 'Железный голем', emoji: '🤖', img: 'https://minecraft.wiki/images/thumb/Iron_Golem_JE2_BE2.png/320px-Iron_Golem_JE2_BE2.png?format=original', rarity: 'epic' },
+            { name: 'Волк', emoji: '🐺', img: 'https://minecraft.wiki/images/thumb/Wolf_JE2_BE2.png/320px-Wolf_JE2_BE2.png?format=original', rarity: 'uncommon' },
+            { name: 'Панда', emoji: '🐼', img: 'https://minecraft.wiki/images/thumb/Panda_JE1_BE1.png/360px-Panda_JE1_BE1.png?format=original', rarity: 'rare' },
+            { name: 'Полярный медведь', emoji: '🐻‍❄️', img: 'https://minecraft.wiki/images/thumb/Polar_Bear_JE2_BE2.png/400px-Polar_Bear_JE2_BE2.png?format=original', rarity: 'rare' },
+            { name: 'Дельфин', emoji: '🐬', img: 'https://minecraft.wiki/images/thumb/Dolphin.gif/440px-Dolphin.gif?format=original', rarity: 'uncommon' },
+            { name: 'Пчела', emoji: '🐝', img: 'https://minecraft.wiki/images/Bee_JE1.gif?format=original', rarity: 'common' },
+            { name: 'Коза', emoji: '🐐', img: 'https://minecraft.wiki/images/thumb/Goat_%28two_horns%29_JE1_BE1.png/380px-Goat_%28two_horns%29_JE1_BE1.png?format=original', rarity: 'uncommon' },
+            { name: 'Броненосец', emoji: '🦔', img: 'https://minecraft.wiki/images/thumb/Armadillo_JE2_BE2.png/320px-Armadillo_JE2_BE2.png?format=original', rarity: 'uncommon' },
+            { name: 'Лиса', emoji: '🦊', img: 'https://minecraft.wiki/images/thumb/Fox_JE1_BE1.png/320px-Fox_JE1_BE1.png?format=original', rarity: 'uncommon' },
+            { name: 'Корова', emoji: '🐄', img: 'https://minecraft.wiki/images/thumb/Temperate_Cow_JE6_BE3.png/320px-Temperate_Cow_JE6_BE3.png?format=original', rarity: 'common' },
+            { name: 'Грибная корова', emoji: '🐄', img: 'https://minecraft.wiki/images/thumb/Red_Mooshroom_JE5_BE3.png/320px-Red_Mooshroom_JE5_BE3.png?format=original', rarity: 'legendary' },
+            { name: 'Свинья', emoji: '🐖', img: 'https://minecraft.wiki/images/thumb/Temperate_Pig_JE4_BE2.png/320px-Temperate_Pig_JE4_BE2.png?format=original', rarity: 'common' },
+            { name: 'Овца', emoji: '🐑', img: 'https://minecraft.wiki/images/thumb/White_Sheep_JE5.png/320px-White_Sheep_JE5.png?format=original', rarity: 'common' },
+            { name: 'Курица', emoji: '🐔', img: 'https://minecraft.wiki/images/Chicken_JE2_BE2.png?format=original', rarity: 'common' },
+            { name: 'Кролик', emoji: '🐰', img: 'https://minecraft.wiki/images/thumb/Brown_Rabbit_BE4.png/320px-Brown_Rabbit_BE4.png?format=original', rarity: 'common' },
+            { name: 'Кот', emoji: '🐱', img: 'https://minecraft.wiki/images/thumb/Red_Cat.png/320px-Red_Cat.png?format=original', rarity: 'uncommon' },
+            { name: 'Оцелот', emoji: '🐆', img: 'https://minecraft.wiki/images/thumb/Ocelot_JE2_BE2.png/320px-Ocelot_JE2_BE2.png?format=original', rarity: 'rare' },
+            { name: 'Лошадь', emoji: '🐴', img: 'https://ru.minecraft.wiki/images/thumb/Лошадь.png/320px-Лошадь.png?format=original', rarity: 'uncommon' },
+            { name: 'Осёл', emoji: '🫏', img: 'https://static.wikia.nocookie.net/minecraft_gamepedia/images/9/95/Donkey.png?format=original', rarity: 'uncommon' },
+            { name: 'Черепаха', emoji: '🐢', img: 'https://minecraft.wiki/images/thumb/Turtle_JE3_BE1.png/480px-Turtle_JE3_BE1.png?format=original', rarity: 'uncommon' },
+            { name: 'Попугай', emoji: '🦜', img: 'https://minecraft.wiki/images/thumb/Red_Parrot_JE1_BE1.png/320px-Red_Parrot_JE1_BE1.png?format=original', rarity: 'rare' },
+            { name: 'Спрут', emoji: '🐙', img: 'https://minecraft.wiki/images/Squid_JE2_BE2.gif?format=original', rarity: 'common' },
+            { name: 'Светящийся спрут', emoji: '🐙', img: 'https://minecraft.wiki/images/Glow_Squid_JE1.gif?format=original', rarity: 'uncommon' },
+            { name: 'Аксолотль', emoji: '🦎', img: 'https://minecraft.wiki/images/thumb/Axolotl_Idle_Floor_Underwater.gif/400px-Axolotl_Idle_Floor_Underwater.gif?format=original', rarity: 'rare' },
+            { name: 'Лягушка', emoji: '🐸', img: 'https://minecraft.wiki/images/Temperate_Frog_JE1_BE1.gif?format=original', rarity: 'common' },
+            { name: 'Нюхач', emoji: '🐽', img: 'https://minecraft.wiki/images/thumb/Sniffer_sniffsniff.gif/400px-Sniffer_sniffsniff.gif?format=original', rarity: 'epic' },
+            { name: 'Верблюд', emoji: '🐪', img: 'https://minecraft.wiki/images/thumb/Camel_Idle.gif/400px-Camel_Idle.gif?format=original', rarity: 'rare' },
+            { name: 'Странствующий торговец', emoji: '🧑‍🌾', img: 'https://ru.minecraft.wiki/images/thumb/Торговец.png/320px-Торговец.png?format=original', rarity: 'rare' },
+            { name: 'Странник Края', emoji: '🌌', img: 'https://ru.minecraft.wiki/images/thumb/Странник_Края.png/212px-Странник_Края.png?format=original', rarity: 'rare' },
+        ]);
+
+        const preloadCache = new Map();
+        let preloadProgress = 0;
+        let totalImages = 0;
+        let failedImages = [];
+
+        function preloadAllImages() {
+            const allUrls = new Set();
+            [...items, ...mobs].forEach(item => {
+                if (item.img) allUrls.add(item.img);
+            });
+            totalImages = allUrls.size;
+            preloadProgress = 0;
+            failedImages = [];
+            showLoadingScreen();
+
+            const promises = Array.from(allUrls).map(url => {
+                return new Promise((resolve) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        preloadCache.set(url, img);
+                        preloadProgress++;
+                        updateLoadingProgress();
+                        resolve();
+                    };
+                    img.onerror = () => {
+                        console.warn('⚠️ Не загрузилась:', url);
+                        failedImages.push(url);
+                        preloadProgress++;
+                        updateLoadingProgress();
+                        resolve();
+                    };
+                    img.src = url;
+                });
+            });
+
+            Promise.all(promises).then(() => {
+                if (failedImages.length > 0) {
+                    console.log(`❌ Не загрузилось ${failedImages.length} изображений:`, failedImages);
+                }
+                setTimeout(() => {
+                    hideLoadingScreen();
+                    document.getElementById('mainContainer').classList.add('ready');
+                    buildStrip();
+                    updateStripPosition();
+                    updateCounter();
+                    highlightCenter();
+                }, 300);
+            });
+        }
+
+        function showLoadingScreen() {
+            const overlay = document.createElement('div');
+            overlay.id = 'loadingOverlay';
+            overlay.innerHTML = `
+                <div class="loading-icon">⛏️</div>
+                <div class="loading-title">ЗАГРУЗКА РУЛЕТКИ</div>
+                <div id="loadingBarContainer">
+                    <div id="loadingBar"></div>
+                </div>
+                <div id="loadingText">0 / ${totalImages} изображений</div>
+            `;
+            document.body.appendChild(overlay);
+        }
+
+        function updateLoadingProgress() {
+            const bar = document.getElementById('loadingBar');
+            const text = document.getElementById('loadingText');
+            if (bar && text) {
+                const percent = Math.round((preloadProgress / totalImages) * 100);
+                bar.style.width = percent + '%';
+                text.textContent = `${preloadProgress} / ${totalImages} (${percent}%)`;
+            }
+        }
+
+        function hideLoadingScreen() {
+            const overlay = document.getElementById('loadingOverlay');
+            if (overlay) {
+                overlay.style.opacity = '0';
+                overlay.style.transition = 'opacity 0.5s';
+                setTimeout(() => overlay.remove(), 500);
+            }
+        }
+
+        const strip = document.getElementById('strip');
+        const spinBtn = document.getElementById('spinBtn');
+        const resultDiv = document.getElementById('result');
+        const counterDiv = document.getElementById('counter');
+        const rouletteWindow = document.getElementById('rouletteWindow');
+
+        let currentMode = 'items';
+        let currentData = [...items];
+        let isSpinning = false;
+        let stripX = 0;
+        let velocity = 0;
+        let animationId = null;
+        let slotWidth = 106;
+        let spinStartTime = 0;
+        const SPIN_DURATION = 5000;
+        let lastTimestamp = 0;
+        let allSlots = [];
+        let lastSelectedItem = null;
+
+        const rarityNames = {
+            common: '⚪ ОБЫЧНЫЙ',
+            uncommon: '🟢 НЕОБЫЧНЫЙ',
+            rare: '🔵 РЕДКИЙ',
+            epic: '🟣 ЭПИЧЕСКИЙ',
+            legendary: '🟠 ЛЕГЕНДАРНЫЙ'
+        };
+
+        const rarityClasses = {
+            common: 'rarity-common',
+            uncommon: 'rarity-uncommon',
+            rare: 'rarity-rare',
+            epic: 'rarity-epic',
+            legendary: 'rarity-legendary'
+        };
+
+        const rarityColors = {
+            common: '#9e9e9e',
+            uncommon: '#5a8a3a',
+            rare: '#4287f5',
+            epic: '#a040e8',
+            legendary: '#f5a623'
+        };
+
+        function updateCounter() {
+            const count = currentData.length;
+            const commons = currentData.filter(i => i.rarity === 'common').length;
+            const legendaries = currentData.filter(i => i.rarity === 'legendary').length;
+            counterDiv.textContent = `Всего: ${count} | Обычных: ${commons} | Легендарных: ${legendaries}`;
+        }
+
+        function buildStrip() {
+            strip.innerHTML = '';
+            const totalCopies = 5;
+            for (let copy = 0; copy < totalCopies; copy++) {
+                currentData.forEach(item => {
+                    const slot = document.createElement('div');
+                    slot.className = 'slot-item';
+                    const dotColor = rarityColors[item.rarity] || '#fff';
+
+                    if (item.img && preloadCache.has(item.img)) {
+                        const cachedImg = preloadCache.get(item.img);
+                        slot.innerHTML = `
+                            <span class="rarity-dot" style="background:${dotColor}"></span>
+                            <img src="${cachedImg.src}" class="slot-icon" alt="${item.name}">
+                            <span class="name">${item.name}</span>
+                        `;
+                    } else if (item.img) {
+                        slot.innerHTML = `
+                            <span class="rarity-dot" style="background:${dotColor}"></span>
+                            <span class="emoji">${item.emoji}</span>
+                            <img src="${item.img}" class="slot-icon" alt="${item.name}" style="display:none" onload="this.style.display='';this.previousElementSibling.style.display='none';" onerror="this.remove()">
+                            <span class="name">${item.name}</span>
+                        `;
+                    } else {
+                        slot.innerHTML = `
+                            <span class="rarity-dot" style="background:${dotColor}"></span>
+                            <span class="emoji">${item.emoji}</span>
+                            <span class="name">${item.name}</span>
+                        `;
+                    }
+                    strip.appendChild(slot);
+                });
+            }
+            allSlots = Array.from(strip.querySelectorAll('.slot-item'));
+        }
+
+        function updateSlotWidth() {
+            if (strip.children.length > 0) {
+                slotWidth = strip.children[0].offsetWidth + 6;
+            }
+            if (window.innerWidth <= 600) {
+                slotWidth = 81;
+            } else {
+                slotWidth = 106;
+            }
+        }
+
+        function getCenterItemIndex() {
+            const windowWidth = rouletteWindow.clientWidth;
+            const centerX = windowWidth / 2;
+            const centerInStrip = centerX - stripX;
+            const totalSlotsInOneSet = currentData.length;
+            const totalWidthOfOneSet = totalSlotsInOneSet * slotWidth;
+            let posInSet = centerInStrip % totalWidthOfOneSet;
+            if (posInSet < 0) posInSet += totalWidthOfOneSet;
+            return {
+                index: Math.floor(posInSet / slotWidth) % totalSlotsInOneSet,
+                exactPos: posInSet / slotWidth,
+                totalSlots: totalSlotsInOneSet,
+                totalWidth: totalWidthOfOneSet,
+            };
+        }
+
+        function getCenterItem() {
+            const info = getCenterItemIndex();
+            return currentData[info.index];
+        }
+
+        function highlightCenter() {
+            const windowWidth = rouletteWindow.clientWidth;
+            const centerX = windowWidth / 2;
+            allSlots.forEach(s => s.classList.remove('highlight'));
+            let closestSlot = null;
+            let closestDist = Infinity;
+            allSlots.forEach(slot => {
+                const rect = slot.getBoundingClientRect();
+                const slotCenter = rect.left + rect.width / 2;
+                const dist = Math.abs(slotCenter - centerX);
+                if (dist < closestDist) {
+                    closestDist = dist;
+                    closestSlot = slot;
+                }
+            });
+            if (closestSlot && closestDist < slotWidth / 2) {
+                closestSlot.classList.add('highlight');
+            }
+        }
+
+        function updateStripPosition() {
+            strip.style.transform = `translateX(${stripX}px)`;
+            if (!isSpinning || Math.abs(velocity) < 1.5) {
+                highlightCenter();
+            }
+        }
+
+        function showModal(item) {
+            const existing = document.querySelector('.modal-overlay');
+            if (existing) existing.remove();
+
+            const overlay = document.createElement('div');
+            overlay.className = 'modal-overlay';
+            const rarityClass = rarityClasses[item.rarity] || '';
+            const rarityName = rarityNames[item.rarity] || 'ОБЫЧНЫЙ';
+
+            let imageHTML = '';
+            if (item.img && preloadCache.has(item.img)) {
+                imageHTML = `<img src="${preloadCache.get(item.img).src}" class="modal-image" alt="${item.name}">`;
+            } else if (item.img) {
+                imageHTML = `<img src="${item.img}" class="modal-image" alt="${item.name}" onerror="this.style.display='none';">`;
+            }
+            if (!imageHTML) {
+                imageHTML = `<span style="font-size:100px;display:block;margin-bottom:15px;">${item.emoji}</span>`;
+            }
+
+            overlay.innerHTML = `
+                <div class="modal-content">
+                    <button class="modal-close" onclick="closeModal()">✕</button>
+                    ${imageHTML}
+                    <div class="modal-name">${item.name}</div>
+                    <div class="modal-rarity ${rarityClass}">${rarityName}</div>
+                    <div class="modal-info">Выпало в рулетке Minecraft 1.21.5</div>
+                </div>
+            `;
+
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) closeModal();
+            });
+            document.body.appendChild(overlay);
+            document.addEventListener('keydown', handleEscape);
+        }
+
+        function closeModal() {
+            const overlay = document.querySelector('.modal-overlay');
+            if (overlay) {
+                overlay.classList.add('closing');
+                setTimeout(() => overlay.remove(), 300);
+            }
+            document.removeEventListener('keydown', handleEscape);
+        }
+
+        function handleEscape(e) {
+            if (e.code === 'Escape') {
+                closeModal();
+                closeBrowse();
+            }
+        }
+
+        function animate(timestamp) {
+            if (!isSpinning) return;
+            if (!lastTimestamp) lastTimestamp = timestamp;
+            const dt = Math.min(timestamp - lastTimestamp, 33);
+            lastTimestamp = timestamp;
+            const elapsed = timestamp - spinStartTime;
+
+            if (elapsed < 600) {
+                const progress = elapsed / 600;
+                velocity = 35 * easeOutQuad(progress);
+            } else if (elapsed < 4000) {
+                const progress = (elapsed - 600) / 3400;
+                velocity = 35 - (progress * 10);
+            } else if (elapsed < SPIN_DURATION) {
+                const progress = (elapsed - 4000) / 1000;
+                const startSpeed = 25;
+                velocity = startSpeed * Math.pow(1 - progress, 3.5);
+            } else {
+                velocity = 0;
+                isSpinning = false;
+                spinBtn.disabled = false;
+                cancelAnimationFrame(animationId);
+                animationId = null;
+                lastTimestamp = 0;
+                snapToNearestSlot();
+                rouletteWindow.classList.add('flash');
+                setTimeout(() => rouletteWindow.classList.remove('flash'), 500);
+
+                const selected = getCenterItem();
+                lastSelectedItem = selected;
+
+                if (selected.img && preloadCache.has(selected.img)) {
+                    resultDiv.innerHTML = `
+                        <div class="result-text" onclick="showModal(lastSelectedItem)" title="Нажми для подробностей">
+                            <img src="${preloadCache.get(selected.img).src}" class="result-icon" alt="${selected.name}">
+                            ${selected.name}
+                            <span style="font-size:0.7em;color:${rarityColors[selected.rarity]};margin-left:8px;">●</span>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="result-text" onclick="showModal(lastSelectedItem)" title="Нажми для подробностей">
+                            <span class="result-emoji">${selected.emoji}</span>
+                            ${selected.name}
+                            <span style="font-size:0.7em;color:${rarityColors[selected.rarity]};margin-left:8px;">●</span>
+                        </div>
+                    `;
+                }
+
+                setTimeout(() => {
+                    if (lastSelectedItem === selected) showModal(selected);
+                }, 400);
+
+                highlightCenter();
+                return;
+            }
+
+            stripX -= velocity * (dt / 16.67);
+
+            const totalSlotsInOneSet = currentData.length;
+            const totalWidthOfOneSet = totalSlotsInOneSet * slotWidth;
+            const minX = -totalWidthOfOneSet * 2;
+            const maxX = -totalWidthOfOneSet;
+            if (stripX < minX) stripX += totalWidthOfOneSet;
+            if (stripX > maxX) stripX -= totalWidthOfOneSet;
+
+            updateStripPosition();
+            animationId = requestAnimationFrame(animate);
+        }
+
+        function snapToNearestSlot() {
+            const info = getCenterItemIndex();
+            const nearestIndex = Math.round(info.exactPos);
+            const offset = (nearestIndex - info.exactPos) * slotWidth;
+            stripX += offset;
+            const totalWidthOfOneSet = info.totalSlots * slotWidth;
+            const minX = -totalWidthOfOneSet * 2;
+            const maxX = -totalWidthOfOneSet;
+            if (stripX < minX) stripX += totalWidthOfOneSet;
+            if (stripX > maxX) stripX -= totalWidthOfOneSet;
+            updateStripPosition();
+        }
+
+        function spin() {
+            if (isSpinning) return;
+            isSpinning = true;
+            spinBtn.disabled = true;
+            resultDiv.innerHTML = '';
+            updateSlotWidth();
+            lastTimestamp = 0;
+            spinStartTime = performance.now();
+            const totalWidthOfOneSet = currentData.length * slotWidth;
+            stripX -= Math.random() * totalWidthOfOneSet * 0.3;
+            animationId = requestAnimationFrame(animate);
+        }
+
+        function switchMode(mode) {
+            if (isSpinning) return;
+            currentMode = mode;
+            currentData = mode === 'items' ? [...items] : [...mobs];
+            document.getElementById('btn-items').classList.toggle('active', mode === 'items');
+            document.getElementById('btn-mobs').classList.toggle('active', mode === 'mobs');
+            document.getElementById('btn-mobs').classList.toggle('mobs', mode === 'mobs');
+            document.getElementById('btn-browse').classList.remove('active');
+            resultDiv.innerHTML = '';
+            stripX = 0;
+            velocity = 0;
+            lastSelectedItem = null;
+            updateSlotWidth();
+            buildStrip();
+            updateStripPosition();
+            updateCounter();
+        }
+
+        let browseFilter = 'all';
+
+        function openBrowse() {
+            if (isSpinning) return;
+            const existing = document.querySelector('.browse-overlay');
+            if (existing) existing.remove();
+
+            document.getElementById('btn-items').classList.remove('active');
+            document.getElementById('btn-mobs').classList.remove('active');
+            document.getElementById('btn-mobs').classList.remove('mobs');
+            document.getElementById('btn-browse').classList.add('active');
+
+            const overlay = document.createElement('div');
+            overlay.className = 'browse-overlay';
+            overlay.innerHTML = `
+                <div class="browse-header">
+                    <div class="browse-title">📋 КАТАЛОГ — ${currentMode === 'items' ? 'ПРЕДМЕТЫ' : 'МОБЫ'}</div>
+                    <button class="browse-close" onclick="closeBrowse()">✕</button>
+                </div>
+                <div class="browse-filters" id="browseFilters">
+                    <button class="filter-btn filter-all active" onclick="setBrowseFilter('all')">ВСЕ</button>
+                    <button class="filter-btn filter-common" onclick="setBrowseFilter('common')">⚪ Обычные</button>
+                    <button class="filter-btn filter-uncommon" onclick="setBrowseFilter('uncommon')">🟢 Необычные</button>
+                    <button class="filter-btn filter-rare" onclick="setBrowseFilter('rare')">🔵 Редкие</button>
+                    <button class="filter-btn filter-epic" onclick="setBrowseFilter('epic')">🟣 Эпические</button>
+                    <button class="filter-btn filter-legendary" onclick="setBrowseFilter('legendary')">🟠 Легендарные</button>
+                </div>
+                <div class="browse-grid" id="browseGrid"></div>
+            `;
+
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) closeBrowse();
+            });
+            document.body.appendChild(overlay);
+            document.addEventListener('keydown', handleEscape);
+
+            browseFilter = 'all';
+            renderBrowseGrid();
+        }
+
+        function closeBrowse() {
+            const overlay = document.querySelector('.browse-overlay');
+            if (overlay) {
+                overlay.classList.add('closing');
+                setTimeout(() => overlay.remove(), 300);
+            }
+            document.getElementById('btn-browse').classList.remove('active');
+            if (currentMode === 'items') {
+                document.getElementById('btn-items').classList.add('active');
+            } else {
+                document.getElementById('btn-mobs').classList.add('active');
+                document.getElementById('btn-mobs').classList.add('mobs');
+            }
+            document.removeEventListener('keydown', handleEscape);
+        }
+
+        function setBrowseFilter(filter) {
+            browseFilter = filter;
+            document.querySelectorAll('#browseFilters .filter-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`#browseFilters .filter-${filter}`).classList.add('active');
+            renderBrowseGrid();
+        }
+
+        function renderBrowseGrid() {
+            const grid = document.getElementById('browseGrid');
+            if (!grid) return;
+
+            let filteredData = currentData;
+            if (browseFilter !== 'all') {
+                filteredData = currentData.filter(item => item.rarity === browseFilter);
+            }
+
+            grid.innerHTML = '';
+            filteredData.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'browse-item';
+                div.onclick = () => {
+                    closeBrowse();
+                    setTimeout(() => showModal(item), 300);
+                };
+
+                const dotColor = rarityColors[item.rarity] || '#fff';
+
+                if (item.img && preloadCache.has(item.img)) {
+                    div.innerHTML = `
+                        <span class="browse-rarity-dot" style="background:${dotColor}"></span>
+                        <img src="${preloadCache.get(item.img).src}" class="browse-icon" alt="${item.name}">
+                        <span class="browse-name">${item.name}</span>
+                    `;
+                } else if (item.img) {
+                    div.innerHTML = `
+                        <span class="browse-rarity-dot" style="background:${dotColor}"></span>
+                        <span class="browse-emoji">${item.emoji}</span>
+                        <img src="${item.img}" class="browse-icon" alt="${item.name}" style="display:none" onload="this.style.display='';this.previousElementSibling.style.display='none';" onerror="this.remove()">
+                        <span class="browse-name">${item.name}</span>
+                    `;
+                } else {
+                    div.innerHTML = `
+                        <span class="browse-rarity-dot" style="background:${dotColor}"></span>
+                        <span class="browse-emoji">${item.emoji}</span>
+                        <span class="browse-name">${item.name}</span>
+                    `;
+                }
+                grid.appendChild(div);
+            });
+        }
+
+        function easeOutQuad(t) { return 1 - (1 - t) * (1 - t); }
+
+        window.addEventListener('resize', () => {
+            updateSlotWidth();
+            buildStrip();
+            stripX = 0;
+            updateStripPosition();
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' && !isSpinning && !document.querySelector('.browse-overlay')) {
+                e.preventDefault();
+                spin();
+            }
+        });
+
+        updateSlotWidth();
+        preloadAllImages();
+    </script>
+</body>
+</html>
