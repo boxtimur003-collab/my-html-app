@@ -35,6 +35,7 @@ jobs:
         npm init -y
         npm install @capacitor/core@5.7.0 @capacitor/cli@5.7.0 --legacy-peer-deps
         npm install @capacitor/android@5.7.0 --legacy-peer-deps
+        npm install -g sharp-cli
     
     - name: Initialize Capacitor
       run: |
@@ -45,9 +46,57 @@ jobs:
       run: |
         mkdir -p www
         cp index.html www/
-        cp -r css www/ 2>/dev/null || true
-        cp -r js www/ 2>/dev/null || true
-        cp -r images www/ 2>/dev/null || true
+    
+    - name: Add icon to Android project
+      run: |
+        # Создаем все папки для иконок
+        mkdir -p android/app/src/main/res/mipmap-mdpi
+        mkdir -p android/app/src/main/res/mipmap-hdpi
+        mkdir -p android/app/src/main/res/mipmap-xhdpi
+        mkdir -p android/app/src/main/res/mipmap-xxhdpi
+        mkdir -p android/app/src/main/res/mipmap-xxxhdpi
+        mkdir -p android/app/src/main/res/drawable
+        
+        # Если есть icon.png - создаем все размеры
+        if [ -f "icon.png" ]; then
+          echo "✅ Иконка найдена, создаем размеры..."
+          
+          # Создаем все размеры с помощью sharp
+          npx sharp-cli -i icon.png -o android/app/src/main/res/mipmap-mdpi/ic_launcher.png resize 48 48
+          npx sharp-cli -i icon.png -o android/app/src/main/res/mipmap-hdpi/ic_launcher.png resize 72 72
+          npx sharp-cli -i icon.png -o android/app/src/main/res/mipmap-xhdpi/ic_launcher.png resize 96 96
+          npx sharp-cli -i icon.png -o android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png resize 144 144
+          npx sharp-cli -i icon.png -o android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png resize 192 192
+          
+          # Копируем оригинал
+          cp icon.png android/app/src/main/res/drawable/icon.png
+          
+          # Создаем ic_launcher.png в drawable
+          cp icon.png android/app/src/main/res/drawable/ic_launcher.png
+          
+          echo "✅ Иконки созданы"
+        elif [ -f "resources/icon.png" ]; then
+          echo "✅ Иконка найдена в resources, создаем размеры..."
+          
+          npx sharp-cli -i resources/icon.png -o android/app/src/main/res/mipmap-mdpi/ic_launcher.png resize 48 48
+          npx sharp-cli -i resources/icon.png -o android/app/src/main/res/mipmap-hdpi/ic_launcher.png resize 72 72
+          npx sharp-cli -i resources/icon.png -o android/app/src/main/res/mipmap-xhdpi/ic_launcher.png resize 96 96
+          npx sharp-cli -i resources/icon.png -o android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png resize 144 144
+          npx sharp-cli -i resources/icon.png -o android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png resize 192 192
+          
+          cp resources/icon.png android/app/src/main/res/drawable/icon.png
+          cp resources/icon.png android/app/src/main/res/drawable/ic_launcher.png
+          
+          echo "✅ Иконки созданы"
+        else
+          echo "⚠️ Иконка не найдена"
+        fi
+    
+    - name: Update AndroidManifest.xml
+      run: |
+        # Обновляем манифест для использования нашей иконки
+        sed -i 's/android:icon="@mipmap/ic_launcher"/android:icon="@mipmap/ic_launcher"/g' android/app/src/main/AndroidManifest.xml
+        echo "✅ Манифест обновлен"
     
     - name: Sync Capacitor
       run: |
