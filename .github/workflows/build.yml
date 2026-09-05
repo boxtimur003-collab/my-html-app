@@ -35,7 +35,7 @@ jobs:
         npm init -y
         npm install @capacitor/core@5.7.0 @capacitor/cli@5.7.0 --legacy-peer-deps
         npm install @capacitor/android@5.7.0 --legacy-peer-deps
-        npm install -g sharp-cli
+        pip install Pillow
     
     - name: Initialize Capacitor
       run: |
@@ -47,7 +47,7 @@ jobs:
         mkdir -p www
         cp index.html www/
     
-    - name: Add icon to Android project
+    - name: Add icon using Python
       run: |
         # Создаем все папки для иконок
         mkdir -p android/app/src/main/res/mipmap-mdpi
@@ -57,46 +57,49 @@ jobs:
         mkdir -p android/app/src/main/res/mipmap-xxxhdpi
         mkdir -p android/app/src/main/res/drawable
         
-        # Если есть icon.png - создаем все размеры
-        if [ -f "icon.png" ]; then
-          echo "✅ Иконка найдена, создаем размеры..."
-          
-          # Создаем все размеры с помощью sharp
-          npx sharp-cli -i icon.png -o android/app/src/main/res/mipmap-mdpi/ic_launcher.png resize 48 48
-          npx sharp-cli -i icon.png -o android/app/src/main/res/mipmap-hdpi/ic_launcher.png resize 72 72
-          npx sharp-cli -i icon.png -o android/app/src/main/res/mipmap-xhdpi/ic_launcher.png resize 96 96
-          npx sharp-cli -i icon.png -o android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png resize 144 144
-          npx sharp-cli -i icon.png -o android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png resize 192 192
-          
-          # Копируем оригинал
-          cp icon.png android/app/src/main/res/drawable/icon.png
-          
-          # Создаем ic_launcher.png в drawable
-          cp icon.png android/app/src/main/res/drawable/ic_launcher.png
-          
-          echo "✅ Иконки созданы"
-        elif [ -f "resources/icon.png" ]; then
-          echo "✅ Иконка найдена в resources, создаем размеры..."
-          
-          npx sharp-cli -i resources/icon.png -o android/app/src/main/res/mipmap-mdpi/ic_launcher.png resize 48 48
-          npx sharp-cli -i resources/icon.png -o android/app/src/main/res/mipmap-hdpi/ic_launcher.png resize 72 72
-          npx sharp-cli -i resources/icon.png -o android/app/src/main/res/mipmap-xhdpi/ic_launcher.png resize 96 96
-          npx sharp-cli -i resources/icon.png -o android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png resize 144 144
-          npx sharp-cli -i resources/icon.png -o android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png resize 192 192
-          
-          cp resources/icon.png android/app/src/main/res/drawable/icon.png
-          cp resources/icon.png android/app/src/main/res/drawable/ic_launcher.png
-          
-          echo "✅ Иконки созданы"
-        else
-          echo "⚠️ Иконка не найдена"
-        fi
-    
-    - name: Update AndroidManifest.xml
-      run: |
-        # Обновляем манифест для использования нашей иконки
-        sed -i 's/android:icon="@mipmap/ic_launcher"/android:icon="@mipmap/ic_launcher"/g' android/app/src/main/AndroidManifest.xml
-        echo "✅ Манифест обновлен"
+        # Создаем скрипт для конвертации иконки
+        cat > convert_icon.py << 'EOF'
+        from PIL import Image
+        import os
+        
+        # Ищем иконку в разных местах
+        icon_paths = ['icon.png', 'resources/icon.png', 'resources/icon.jpg', 'icon.jpg']
+        icon_path = None
+        
+        for path in icon_paths:
+            if os.path.exists(path):
+                icon_path = path
+                break
+        
+        if icon_path:
+            print(f"✅ Найдена иконка: {icon_path}")
+            img = Image.open(icon_path)
+            img = img.convert('RGBA')
+            
+            # Создаем все размеры
+            sizes = {
+                'mdpi': 48,
+                'hdpi': 72,
+                'xhdpi': 96,
+                'xxhdpi': 144,
+                'xxxhdpi': 192
+            }
+            
+            for folder, size in sizes.items():
+                resized = img.resize((size, size), Image.LANCZOS)
+                output_path = f'android/app/src/main/res/mipmap-{folder}/ic_launcher.png'
+                resized.save(output_path, 'PNG')
+                print(f"✅ Создана иконка {folder}: {size}x{size}")
+            
+            # Копируем оригинал
+            img.save('android/app/src/main/res/drawable/icon.png', 'PNG')
+            img.save('android/app/src/main/res/drawable/ic_launcher.png', 'PNG')
+            print("✅ Все иконки успешно созданы!")
+        else:
+            print("⚠️ Иконка не найдена, используется стандартная")
+        EOF
+        
+        python convert_icon.py
     
     - name: Sync Capacitor
       run: |
