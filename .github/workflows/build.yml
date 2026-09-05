@@ -5,6 +5,9 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -32,11 +35,10 @@ jobs:
         npm init -y
         npm install @capacitor/core@5.7.0 @capacitor/cli@5.7.0 --legacy-peer-deps
         npm install @capacitor/android@5.7.0 --legacy-peer-deps
-        npm install -g cordova-res sharp-cli
     
     - name: Initialize Capacitor
       run: |
-        npx cap init "Мое Крутое Приложение" "com.mycompany.myapp" --web-dir=www
+        npx cap init "Рулетка Майнкрафт" "com.mycompany.rouletteminecraft" --web-dir=www
         npx cap add android
     
     - name: Copy files to www
@@ -46,34 +48,6 @@ jobs:
         cp -r css www/ 2>/dev/null || true
         cp -r js www/ 2>/dev/null || true
         cp -r images www/ 2>/dev/null || true
-    
-    - name: Generate icons manually
-      run: |
-        if [ -f "resources/icon.png" ]; then
-          echo "✅ Иконка найдена, генерируем все размеры..."
-          
-          # Создаем все размеры иконок вручную
-          mkdir -p android/app/src/main/res/mipmap-mdpi
-          mkdir -p android/app/src/main/res/mipmap-hdpi
-          mkdir -p android/app/src/main/res/mipmap-xhdpi
-          mkdir -p android/app/src/main/res/mipmap-xxhdpi
-          mkdir -p android/app/src/main/res/mipmap-xxxhdpi
-          
-          # Генерируем разные размеры
-          npx sharp -i resources/icon.png -o android/app/src/main/res/mipmap-mdpi/ic_launcher.png resize 48 48
-          npx sharp -i resources/icon.png -o android/app/src/main/res/mipmap-hdpi/ic_launcher.png resize 72 72
-          npx sharp -i resources/icon.png -o android/app/src/main/res/mipmap-xhdpi/ic_launcher.png resize 96 96
-          npx sharp -i resources/icon.png -o android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png resize 144 144
-          npx sharp -i resources/icon.png -o android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png resize 192 192
-          
-          # Копируем также в drawable
-          mkdir -p android/app/src/main/res/drawable
-          cp resources/icon.png android/app/src/main/res/drawable/icon.png
-          
-          echo "✅ Иконки созданы успешно"
-        else
-          echo "⚠️ Иконка не найдена, используется стандартная"
-        fi
     
     - name: Sync Capacitor
       run: |
@@ -88,18 +62,6 @@ jobs:
     - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
-        name: MyApp-APK
+        name: Roulette-Minecraft-APK
         path: android/app/build/outputs/apk/debug/app-debug.apk
         retention-days: 90
-    
-    - name: Create Release
-      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-      uses: softprops/action-gh-release@v1
-      with:
-        files: android/app/build/outputs/apk/debug/app-debug.apk
-        tag_name: v${{ github.run_number }}
-        name: Release v${{ github.run_number }}
-        draft: false
-        prerelease: false
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
