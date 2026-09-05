@@ -27,10 +27,32 @@ jobs:
     - name: Setup Android SDK
       uses: android-actions/setup-android@v3
     
+    - name: Install Capacitor CLI globally
+      run: |
+        npm install -g @capacitor/cli@5.7.0
+    
+    - name: Initialize Capacitor Project
+      run: |
+        # Создаем временный package.json с правильными версиями
+        cat > package.json << 'EOF'
+        {
+          "name": "my-html-app",
+          "version": "1.0.0",
+          "description": "HTML to APK converter",
+          "dependencies": {
+            "@capacitor/core": "5.7.0",
+            "@capacitor/android": "5.7.0"
+          },
+          "devDependencies": {
+            "@capacitor/cli": "5.7.0"
+          }
+        }
+        EOF
+    
     - name: Install dependencies
       run: |
         npm install
-        npm install @capacitor/android@latest
+        npm install @capacitor/android@5.7.0 --save-exact
     
     - name: Initialize Capacitor
       run: |
