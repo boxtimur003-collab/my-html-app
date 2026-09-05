@@ -47,16 +47,14 @@ jobs:
         cp -r js www/ 2>/dev/null || true
         cp -r images www/ 2>/dev/null || true
     
-    - name: Generate icons and splash screens
+    - name: Generate icons
       run: |
         mkdir -p resources
-        # Если иконка есть, генерируем все размеры
         if [ -f "resources/icon.png" ]; then
-          cordova-res android --skip-config --copy --icon-source resources/icon.png
-        fi
-        # Если splash screen есть
-        if [ -f "resources/splash.png" ]; then
-          cordova-res android --skip-config --copy --splash-source resources/splash.png
+          echo "✅ Иконка найдена, генерируем..."
+          cordova-res android --skip-config --copy --icon-source resources/icon.png --type icon
+        else
+          echo "⚠️ Иконка не найдена, используется стандартная"
         fi
     
     - name: Sync Capacitor
