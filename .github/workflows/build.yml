@@ -27,21 +27,37 @@ jobs:
     - name: Setup Android SDK
       uses: android-actions/setup-android@v3
     
-    - name: Clean install with legacy-peer-deps
+    - name: Install dependencies
       run: |
         npm init -y
         npm install @capacitor/core@5.7.0 @capacitor/cli@5.7.0 --legacy-peer-deps
         npm install @capacitor/android@5.7.0 --legacy-peer-deps
+        npm install -g cordova-res
     
     - name: Initialize Capacitor
       run: |
-        npx cap init "Мое Приложение" "com.mycompany.myapp" --web-dir=www
+        npx cap init "Мое Крутое Приложение" "com.mycompany.myapp" --web-dir=www
         npx cap add android
     
-    - name: Copy HTML to www
+    - name: Copy files to www
       run: |
         mkdir -p www
         cp index.html www/
+        cp -r css www/ 2>/dev/null || true
+        cp -r js www/ 2>/dev/null || true
+        cp -r images www/ 2>/dev/null || true
+    
+    - name: Generate icons and splash screens
+      run: |
+        mkdir -p resources
+        # Если иконка есть, генерируем все размеры
+        if [ -f "resources/icon.png" ]; then
+          cordova-res android --skip-config --copy --icon-source resources/icon.png
+        fi
+        # Если splash screen есть
+        if [ -f "resources/splash.png" ]; then
+          cordova-res android --skip-config --copy --splash-source resources/splash.png
+        fi
     
     - name: Sync Capacitor
       run: |
@@ -59,3 +75,15 @@ jobs:
         name: MyApp-APK
         path: android/app/build/outputs/apk/debug/app-debug.apk
         retention-days: 90
+    
+    - name: Create Release
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      uses: softprops/action-gh-release@v1
+      with:
+        files: android/app/build/outputs/apk/debug/app-debug.apk
+        tag_name: v${{ github.run_number }}
+        name: Release v${{ github.run_number }}
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
