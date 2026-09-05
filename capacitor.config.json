@@ -1,6 +1,6 @@
 {
   "appId": "com.mycompany.myapp",
-  "appName": "Мое Приложение",
+  "appName": "Рулетка Майнкрафт",
   "webDir": "www",
   "bundledWebRuntime": false,
   "server": {
